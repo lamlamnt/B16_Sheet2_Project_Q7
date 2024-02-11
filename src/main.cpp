@@ -18,17 +18,21 @@ int main()
     Oxford.takeOrderRandom(); 
     vector<Customer> oxfordCustomerList = Oxford.getCustomerList();
     vector<Edge> oxfordEdgeList = Oxford.getEdgeList();
+    cout<<"Length of edges: "<<endl;
     for(int i = 0; i< oxfordEdgeList.size(); i++)
     {
         cout<<oxfordEdgeList[i].getLength()<<endl;
     }
+    cout<<"Customer id: x,y coordinates - number of baskets"<<endl;
     for(int i = 0; i < oxfordCustomerList.size(); i++)
     {
-        cout<<oxfordCustomerList[i].id<<": "<<oxfordCustomerList[i].getPosition()[0]<<", "<<oxfordCustomerList[i].getPosition()[1]<<": "<<oxfordCustomerList[i].getNumBasket()<<endl;
+        cout<<oxfordCustomerList[i].id<<": "<<oxfordCustomerList[i].getPosition()[0]<<", "<<oxfordCustomerList[i].getPosition()[1]<<" - "<<oxfordCustomerList[i].getNumBasket()<<endl;
     }
     vector<double> shortest_distance = Oxford.Dijkstra_Shortest_Path();
+    cout<<"Shortest distance to the store: "<<endl;
     for(int i = 0; i<shortest_distance.size(); i++)
     {
         cout<<shortest_distance[i]<<endl;
     }
+    Oxford.computeDeliveryPlan();
 }

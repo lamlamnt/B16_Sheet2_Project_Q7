@@ -4,6 +4,8 @@
 #include <iostream>
 #include <random>
 #include <string>
+#include <sstream>
+#include <set>
 using namespace std;
 
 Robot::Robot(int _capacity):capacity(_capacity){};
@@ -111,7 +113,7 @@ void World::takeOrderRandom()
 
 void World::addAllEdgesRandom()
 {
-
+    //Use a spanning tree algorithm to ensure it's a connected graph
 }
 
 vector<vector<double>> World::convertMaptoMatrix()
@@ -135,48 +137,52 @@ vector<vector<double>> World::convertMaptoMatrix()
 
 vector<double> World::Dijkstra_Shortest_Path()
 {
-    vector<vector<double>> adjacency_matrix = //convertMaptoMatrix();
-    { { 0, 4, 0, 0, 0, 0, 0, 8, 0 },
-                        { 4, 0, 8, 0, 0, 0, 0, 11, 0 },
-                        { 0, 8, 0, 7, 0, 4, 0, 0, 2 },
-                        { 0, 0, 7, 0, 9, 14, 0, 0, 0 },
-                        { 0, 0, 0, 9, 0, 10, 0, 0, 0 },
-                        { 0, 0, 4, 14, 10, 0, 2, 0, 0 },
-                        { 0, 0, 0, 0, 0, 2, 0, 1, 6 },
-                        { 8, 11, 0, 0, 0, 0, 1, 0, 7 },
-                        { 0, 0, 2, 0, 0, 0, 6, 7, 0 } };
+    vector<vector<double>> adjacency_matrix = convertMaptoMatrix();
     int numNodes = adjacency_matrix.size();
-    vector<double> distance(numNodes,INT_MAX); //Holds shortest distance from source to each node
-    vector<bool> visited(numNodes,false); //Whether we have found the shortest distance to this node 
-    vector<string> output(numNodes); //Stores the path as a string
+    vector<double> distance(numNodes,INT_MAX); 
+    vector<bool> visited(numNodes,false);
+    vector<string> output(numNodes);
     distance[0] = 0;
-    //Visit each node
-    for(int i = 0; i < numNodes; i++)
-    {
-        //Find minimum distance from source to set of vertices not yet processed. 
-        int node_min_distance = minDistance(distance,visited);
-        visited[node_min_distance] = true;
-        //Update the distance value of adjacent vertices of the picked vertex
-        for(int v = 0; v < numNodes; v++)
+    output[0] = "0";
+ 
+    for (int count = 0; count < numNodes - 1; count++) {
+        int u = minDistance(distance, visited);
+        visited[u] = true;
+        for (int v = 0; v < numNodes; v++)
         {
-            if(visited[v] == false && adjacency_matrix[i][v] != 0 && distance[i] != INT_MAX && distance[i] + adjacency_matrix[i][v] < distance[v])
+            if (!visited[v] && adjacency_matrix[u][v] && distance[u] != INT_MAX 
+            && distance[u] + adjacency_matrix[u][v] < distance[v])
             {
-                distance[v] = distance[i] + adjacency_matrix[i][v];
-                output[v] = output[i] + "-" + to_string(i);
+                distance[v] = distance[u] + adjacency_matrix[u][v];
+                output[v] = output[u] + "-" + to_string(u) + "-" + to_string(v);
             }
         }
     }
-    for(int i = 0; i < numNodes; i++)
-    {
-        cout<<output[i]<<endl;
-    }
+    //Process the output, which contains the actual path (the list of nodes on the shortest path)
+    processOutput(output);
     return distance;
 }
 
-double World::minDistance(vector<double>distance, vector<bool>visited)
+void World::processOutput(vector<string>& input)
+{
+    for(int i = 0; i < input.size(); i++)
+    {
+        set<int> path;
+        stringstream ss(input[i]);
+        string token;
+        while (getline(ss, token,'-')) {
+            int num;
+            istringstream (token ) >> num;
+            path.insert(num);
+        }
+        deliveryPath.emplace_back(path);
+    }
+}
+
+double World::minDistance(vector<double>& distance, vector<bool>& visited) const
 {
     int min = INT_MAX; 
-    int min_index = 0;
+    int min_index = INT_MAX;
     for(int i = 0; i < distance.size(); i++)
     {
         if(visited[i] == false && distance[i] <= min)
@@ -190,8 +196,18 @@ double World::minDistance(vector<double>distance, vector<bool>visited)
 
 void World::computeDeliveryPlan()
 {
+    cout<<"Delivery plan:"<<endl;
     //Simplest: deliver on shortest path 
-    //Deliver to customers with 3 baskets first
-    //Deliver closest node and then node next to it until no more basket and so on
-    //Print to console
+    for(int node = 0; node < CustomerList.size(); node++)
+    {
+        if(CustomerList[node].getNumBasket() != 0)
+        {
+            string deliveryOutput = "";
+            for(int i: deliveryPath[node+1])
+            {
+                deliveryOutput = deliveryOutput + to_string(i) + "-";
+            }
+            cout<<"Deliver "<<CustomerList[node].getNumBasket()<<" basket(s) to customer "<<CustomerList[node].id<<": "<<deliveryOutput<<endl;
+        }
+    }
 }

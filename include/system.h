@@ -1,5 +1,7 @@
 #pragma once
 #include<vector>
+#include<string>
+#include <set>
 using namespace std;
 
 class Node
@@ -61,14 +63,16 @@ class World
         vector<Edge> EdgeList;
         Store grocer;
         vector<vector<double>> convertMaptoMatrix();
-        double minDistance(vector<double>distance, vector<bool>visited);
+        double minDistance(vector<double>& distance, vector<bool>& visited) const;
+        void processOutput(vector<string>& input);
+        vector<set<int>> deliveryPath;
     public:
         //Initialize nodes and connectivity
         World(Store& storeName); 
-        void addAllCustomersCustom(); 
+        void addAllCustomersCustom(); //this method is used just to make it easier to test functionality and debug
+        void addAllEdgesCustom(); //this method is used just to make it easier to test functionality and debug
         void addAllCustomersRandom(int numNodes);
         void takeOrderRandom();
-        void addAllEdgesCustom();
         void addAllEdgesRandom(); //Initialize random connections for a connected graph
         vector<Customer>& getCustomerList();
         vector<Edge>& getEdgeList();
